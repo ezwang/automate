@@ -1,9 +1,7 @@
 import atexit
+import os
 import io
 import time
-import tempfile
-import secrets
-import os
 import cv2
 import logging
 import numpy
@@ -42,8 +40,9 @@ def add_threshold(func):
 
 
 class VNCManager(object):
-    def __init__(self, port, threshold=0.12):
+    def __init__(self, port, image_path, threshold=0.12):
         self._port = port
+        self._image_path = image_path
         self._logger = logging.getLogger(self.__class__.__name__)
         self._threshold = threshold
         self._conn = api.connect('127.0.0.1::{}'.format(self._port), password=None)
@@ -59,7 +58,7 @@ class VNCManager(object):
         self._conn.mousePress(1)
 
     def get_image_path(self, name):
-        return "images/{}.png".format(name)
+        return os.path.join(self._image_path, "{}.png".format(name))
 
     def get_cv_results(self, other_image):
         bio = io.BytesIO()

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import sys
 import time
 import json
@@ -11,14 +12,21 @@ from vnc_manager import VNCManager
 
 def main(path):
     logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger("ScriptLoader")
 
     docker_mgr = DockerManager()
-    docker_mgr.create()
+    docker_mgr.create(fast_load=True)
 
-    client = VNCManager(5900)
     with open(path, "r") as f:
         commands = json.load(f)
-    run_commands(client, commands)
+    logger.info("Loaded script: {}".format(commands["name"]))
+    image_path = os.path.abspath(os.path.join(os.path.dirname(path), commands["image_path"]))
+    logger.info("Image path: {}".format(image_path))
+    start = time.time()
+    client = VNCManager(5900, image_path)
+    run_commands(client, commands["code"])
+    end = time.time()
+    logger.info("Script execution: {} sec".format(round(end - start, 3)))
 
 
 def run_commands(client, commands):
@@ -44,4 +52,7 @@ def run_commands(client, commands):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    if len(sys.argv) < 2:
+        print("Usage: {} <script>".format(sys.argv[0]))
+    else:
+        main(sys.argv[1])
