@@ -1,0 +1,58 @@
+{
+    "name": "Browser Navigate Example",
+    "description": "Navigate to google.com and take a screenshot.",
+    "image_path": "./images/",
+    "code": [
+        {
+            "action": "vnc.left_click_image",
+            "arguments": {
+                "image": "firefox_x"
+            },
+            "success_callback": [
+                {
+                    "action": "vnc.wait_for_no_image",
+                    "arguments": {
+                        "image": "firefox_icon"
+                    }
+                }
+            ]
+        },
+        {
+            "action": "vnc.left_click_image",
+            "arguments": {
+                "image": "browser_icon"
+            }
+        },
+        {
+            "action": "vnc.wait_for_image",
+            "arguments": {
+                "image": "firefox_icon"
+            }
+        },
+        {
+            "action": "vnc.left_click_image",
+            "arguments": {
+                "image": "google_search"
+            }
+        },
+        {
+            "action": "vnc.send_text",
+            "arguments": {
+                "text": "https://www.google.com/",
+                "enter": true
+            }
+        },
+        {
+            "action": "common.wait",
+            "arguments": {
+                "time": "3"
+            }
+        },
+        {
+            "action": "vnc.save_screenshot",
+            "arguments": {
+                "path": "screenshot.png"
+            }
+        }
+    ]
+}

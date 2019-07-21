@@ -59,6 +59,10 @@ def run_commands(client, commands):
             if action == "while":
                 while run_commands(client, command["condition"]):
                     ret = run_commands(client, command["callback"])
+            elif action == "wait":
+                time = float(command["arguments"]["time"])
+                logger.debug("Waiting for {} seconds".format(time))
+                time.sleep(time)
             else:
                 raise NotImplementedError
         elif package == "vnc":

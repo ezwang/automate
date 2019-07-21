@@ -63,11 +63,18 @@ class VNCManager(object):
     def cleanup(self):
         self._conn.disconnect()
 
-    def left_click(self, x, y):
+    def click(self, x, y, btn):
         x, y = int(x), int(y)
-        self._logger.debug("Left clicking ({}, {})".format(x, y))
         self._conn.mouseMove(x, y)
-        self._conn.mousePress(1)
+        self._conn.mousePress(btn)
+
+    def left_click(self, x, y):
+        self._logger.debug("Left clicking ({}, {})".format(x, y))
+        self.click(x, y, 1)
+
+    def right_click(self, x, y):
+        self._logger.debug("Right clicking ({}, {})".format(x, y))
+        self.click(x, y, 2)
 
     def get_image_path(self, name):
         for path in reversed(self._image_paths):
@@ -120,6 +127,10 @@ class VNCManager(object):
     def left_click_image_until_gone(self, *args, **kwargs):
         while self.left_click_image(*args, **kwargs):
             time.sleep(1)
+
+    def send_key(self, key):
+        self._logger.info("Sending key {}".format(key))
+        self._conn.keyPress(ch)
 
     def send_text(self, text, private=False, enter=False):
         self._logger.info("Typing {}".format("*" * len(text) if private else text))
