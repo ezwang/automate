@@ -5,6 +5,9 @@ import logging
 
 
 class DockerManager(object):
+    """
+    Manages provisioning and cleaning up Docker containers.
+    """
     def __init__(self):
         self._client = docker.from_env()
         self._containers = []

@@ -10,6 +10,9 @@ from vncdotool import api
 
 
 def retry(retries=3, wait=1):
+    """
+    Retry a method until it returns true or a specified number of iterations is met.
+    """
     def outer_wrapper(func):
         def wrapper(self, *args, **kwargs):
             nonlocal retries, wait
@@ -32,6 +35,9 @@ def retry(retries=3, wait=1):
 
 
 def add_threshold(func):
+    """
+    Add the default threshold as an argument if none is specified.
+    """
     def wrapper(self, *args, **kwargs):
         if "threshold" not in kwargs:
             kwargs["threshold"] = self._threshold
@@ -40,13 +46,19 @@ def add_threshold(func):
 
 
 class VNCManager(object):
-    def __init__(self, port, image_path, threshold=0.12):
+    """
+    Manages connecting to the Docker instance via VNC and performing computer vision to detect where to click.
+    """
+    def __init__(self, port, threshold=0.12):
         self._port = port
-        self._image_path = image_path
+        self._image_paths = []
         self._logger = logging.getLogger(self.__class__.__name__)
         self._threshold = threshold
         self._conn = api.connect('127.0.0.1::{}'.format(self._port), password=None)
         atexit.register(self.cleanup)
+
+    def add_image_path(self, path):
+        self._image_paths.append(path)
 
     def cleanup(self):
         self._conn.disconnect()
@@ -58,7 +70,11 @@ class VNCManager(object):
         self._conn.mousePress(1)
 
     def get_image_path(self, name):
-        return os.path.join(self._image_path, "{}.png".format(name))
+        for path in reversed(self._image_paths):
+            full_path = os.path.join(path, "{}.png".format(name))
+            if os.path.isfile(full_path):
+                return full_path
+        raise ValueError("Could not find '{}' in image paths: []".format(name, self._image_paths))
 
     def get_cv_results(self, other_image):
         bio = io.BytesIO()
